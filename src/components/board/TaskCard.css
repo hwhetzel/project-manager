@@ -112,3 +112,11 @@
   color: var(--color-danger);
   font-weight: 500;
 }
+
+/* Dragging state — elevate the card visually while it's being moved */
+.task-card--dragging {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary);
+  transform: rotate(1.5deg);
+  opacity: 0.95;
+}

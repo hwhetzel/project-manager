@@ -77,3 +77,9 @@
   border-radius: var(--radius-md);
   margin-top: var(--space-2);
 }
+
+/* Drag-over highlight — subtle background shift when a card hovers above the column */
+.column__tasks--drag-over {
+  background-color: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+}
