@@ -32,7 +32,7 @@ export function useProjects() {
       tasks: [],
     };
     persist([...projects, newProject]);
-    return newProject; // return so the caller can navigate to it immediately
+    return newProject;
   }, [projects, persist]);
 
   // Updates the name and/or description of an existing project.
@@ -57,9 +57,9 @@ export function useProjects() {
       id: generateId(),
       title: taskData.title.trim(),
       description: taskData.description?.trim() || '',
-      priority: taskData.priority || 'medium', // 'low' | 'medium' | 'high'
+      priority: taskData.priority || 'medium',
       dueDate: taskData.dueDate || '',
-      status: 'todo', // 'todo' | 'inprogress' | 'done'
+      status: 'todo',
       createdAt: new Date().toISOString(),
     };
     const updated = projects.map(p =>
@@ -93,46 +93,37 @@ export function useProjects() {
     persist(updated);
   }, [projects, persist]);
 
-  // Moves a task to a new status column and optionally reorders it within that column.
+  // Moves a task to a new status column and reorders it within that column.
   // Called by the drag-and-drop handler in BoardPage.
-  // `newStatus` is the destination column: 'todo' | 'inprogress' | 'done'
-  // `newIndex` is where in that column's list the task should land.
+  // Preserves the relative order of all other tasks in all columns.
   const moveTask = useCallback((projectId, taskId, newStatus, newIndex) => {
     const updated = projects.map(p => {
       if (p.id !== projectId) return p;
 
-      // Pull the task out of its current position
+      // Separate the moving task from the rest.
       const task = p.tasks.find(t => t.id === taskId);
-      const remaining = p.tasks.filter(t => t.id !== taskId);
+      const withoutTask = p.tasks.filter(t => t.id !== taskId);
 
-      // Update the task's status to match its new column
+      // Update the task's status to match its destination column.
       const movedTask = { ...task, status: newStatus };
 
-      // Figure out where to insert it among the tasks that belong to the destination column.
-      // We need to find the correct absolute index in the flat tasks array.
-      const destinationTasks = remaining.filter(t => t.status === newStatus);
-      const otherTasks = remaining.filter(t => t.status !== newStatus);
+      // Split remaining tasks into destination column and everything else.
+      // We maintain their original relative order within each group.
+      const destTasks = withoutTask.filter(t => t.status === newStatus);
+      const otherTasks = withoutTask.filter(t => t.status !== newStatus);
 
-      // Insert the moved task at the right position within the destination column's tasks
-      destinationTasks.splice(newIndex, 0, movedTask);
+      // Insert the moved task at the correct position in the destination column.
+      destTasks.splice(newIndex, 0, movedTask);
 
-      // Rebuild the flat tasks array: other columns' tasks + reordered destination tasks.
-      // We preserve the relative order of non-destination tasks.
-      const reordered = [];
-      let destPointer = 0;
-
-      // Walk the remaining tasks and weave destination tasks back in at the right spots
-      for (const t of [...otherTasks]) {
-        reordered.push(t);
-      }
-
-      return { ...p, tasks: [...reordered, ...destinationTasks] };
+      // Rebuild the flat array: non-destination tasks first, then destination tasks.
+      // Column render order (todo → inprogress → done) is determined by the
+      // Column component filtering by status, not by array order, so this is safe.
+      return { ...p, tasks: [...otherTasks, ...destTasks] };
     });
     persist(updated);
   }, [projects, persist]);
 
   // Looks up a single project by ID. Returns undefined if not found.
-  // Used by BoardPage to get the current project from the URL param.
   const getProjectById = useCallback((projectId) => {
     return projects.find(p => p.id === projectId);
   }, [projects]);
