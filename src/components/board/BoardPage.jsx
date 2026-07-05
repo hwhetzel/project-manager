@@ -45,6 +45,9 @@ export default function BoardPage() {
   const progress = calcProgress(project.tasks);
   const overdueCount = countOverdue(project.tasks);
 
+  // Count how many filters are currently active so we can show a badge.
+  const activeFilterCount = (filterPriority !== 'all' ? 1 : 0) + (filterDue !== 'all' ? 1 : 0);
+
   // Called by @hello-pangea/dnd when the user finishes a drag.
   // `result` contains the draggable ID, source droppable, and destination droppable.
   // We bail early if there's no destination (dropped outside a column) or
@@ -161,6 +164,16 @@ export default function BoardPage() {
                 ))}
               </div>
             </div>
+
+            {/* Clear all filters — only visible when at least one filter is active */}
+            {activeFilterCount > 0 && (
+              <button
+                className="board__filter-clear"
+                onClick={() => { setFilterPriority('all'); setFilterDue('all'); }}
+              >
+                Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} ✕
+              </button>
+            )}
           </div>
 
           {/* Columns — each one is a Droppable, each task card is a Draggable */}
