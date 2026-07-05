@@ -12,6 +12,7 @@ import Sidebar from '../shared/Sidebar';
 import Column from './Column';
 import Button from '../shared/Button';
 import NewTaskModal from '../modals/NewTaskModal';
+import DashboardStats from './DashboardStats';
 import { countOverdue, calcProgress } from '../../utils/helpers';
 import './BoardPage.css';
 
@@ -27,9 +28,9 @@ export default function BoardPage() {
   const { getProjectById, moveTask } = useProjectContext();
 
   const [showTaskModal, setShowTaskModal] = useState(false);
-  const [editingTask, setEditingTask] = useState(null);
+  const [editingTask, setEditingTask]     = useState(null);
   const [filterPriority, setFilterPriority] = useState('all');
-  const [filterDue, setFilterDue] = useState('all');
+  const [filterDue, setFilterDue]           = useState('all');
 
   const project = getProjectById(projectId);
 
@@ -42,30 +43,21 @@ export default function BoardPage() {
     );
   }
 
-  const progress = calcProgress(project.tasks);
+  const progress    = calcProgress(project.tasks);
   const overdueCount = countOverdue(project.tasks);
 
   // Count how many filters are currently active so we can show a badge.
-  const activeFilterCount = (filterPriority !== 'all' ? 1 : 0) + (filterDue !== 'all' ? 1 : 0);
+  const activeFilterCount =
+    (filterPriority !== 'all' ? 1 : 0) +
+    (filterDue      !== 'all' ? 1 : 0);
 
-  // Called by @hello-pangea/dnd when the user finishes a drag.
-  // `result` contains the draggable ID, source droppable, and destination droppable.
-  // We bail early if there's no destination (dropped outside a column) or
-  // if the task was dropped back in the same position it started.
   function handleDragEnd(result) {
     const { draggableId, source, destination } = result;
-
-    // Dropped outside any column — do nothing.
     if (!destination) return;
-
-    // Dropped in the same column at the same index — do nothing.
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
     ) return;
-
-    // destination.droppableId is the column ID ('todo' | 'inprogress' | 'done').
-    // destination.index is the position within that column's visible task list.
     moveTask(projectId, draggableId, destination.droppableId, destination.index);
   }
 
@@ -76,7 +68,7 @@ export default function BoardPage() {
 
       if (filterDue !== 'all') {
         const today = new Date().toISOString().slice(0, 10);
-        const due = task.dueDate?.slice(0, 10);
+        const due   = task.dueDate?.slice(0, 10);
         if (filterDue === 'overdue')  {
           if (!due || due >= today || task.status === 'done') return false;
         }
@@ -102,10 +94,9 @@ export default function BoardPage() {
     <div className="board-layout">
       <Sidebar />
 
-      {/* DragDropContext must wrap all Droppable columns.
-          It receives one callback — onDragEnd — and nothing else. */}
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="board">
+
           {/* Board header */}
           <div className="board__header">
             <div className="board__header-left">
@@ -132,6 +123,9 @@ export default function BoardPage() {
               <Button onClick={() => setShowTaskModal(true)}>+ Add Task</Button>
             </div>
           </div>
+
+          {/* Dashboard stats bar — shows per-column counts and overall progress */}
+          <DashboardStats tasks={project.tasks} />
 
           {/* Filter bar */}
           <div className="board__filters">
@@ -165,7 +159,6 @@ export default function BoardPage() {
               </div>
             </div>
 
-            {/* Clear all filters — only visible when at least one filter is active */}
             {activeFilterCount > 0 && (
               <button
                 className="board__filter-clear"
@@ -176,7 +169,7 @@ export default function BoardPage() {
             )}
           </div>
 
-          {/* Columns — each one is a Droppable, each task card is a Draggable */}
+          {/* Columns */}
           <div className="board__columns">
             {COLUMNS.map(col => (
               <Column
@@ -189,6 +182,7 @@ export default function BoardPage() {
               />
             ))}
           </div>
+
         </div>
       </DragDropContext>
 
