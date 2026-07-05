@@ -12,11 +12,12 @@ export function generateId() {
 
 // --- Date Formatting ---
 
-// Formats an ISO date string (e.g. "2025-07-04") into a readable label like "Jul 4, 2025".
-// Returns an empty string if no date is provided, so callers don't need to guard against it.
+// Formats an ISO date string (e.g. "2025-07-05") into a readable label like "Jul 5, 2025".
+// Uses slashes instead of hyphens when constructing the Date so JS treats it as
+// local time rather than UTC midnight — prevents the date from showing one day behind.
 export function formatDate(isoString) {
   if (!isoString) return '';
-  const date = new Date(isoString);
+  const date = new Date(isoString.replace(/-/g, '/'));
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -24,16 +25,16 @@ export function formatDate(isoString) {
   });
 }
 
-// Returns true if the given ISO date string is in the past (before today).
-// Used to flag overdue tasks on cards and in the dashboard stats.
+// Returns true if the given ISO date string is before today in local time.
 export function isOverdue(isoString) {
   if (!isoString) return false;
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // strip time so we compare dates only
-  return new Date(isoString) < today;
+  today.setHours(0, 0, 0, 0);
+  const date = new Date(isoString.replace(/-/g, '/'));
+  return date < today;
 }
 
-// Returns true if the given ISO date string falls on today's date.
+// Returns true if the given ISO date string is today in local time.
 export function isDueToday(isoString) {
   if (!isoString) return false;
   const today = new Date().toISOString().slice(0, 10);

@@ -15,6 +15,7 @@ export default function ProjectCard({ project }) {
   const overdueCount = countOverdue(project.tasks);
   const taskCount = project.tasks.length;
   const doneCount = project.tasks.filter(t => t.status === 'done').length;
+  const isComplete = taskCount > 0 && progress === 100;
 
   function handleDelete(e) {
     // Stop the click from bubbling up to the card and triggering navigation.
@@ -61,7 +62,7 @@ export default function ProjectCard({ project }) {
       <div className="project-card__progress">
         <div className="project-card__progress-bar">
           <div
-            className="project-card__progress-fill"
+            className={`project-card__progress-fill ${isComplete ? 'project-card__progress-fill--complete' : ''}`}
             style={{ width: `${progress}%` }}
             role="progressbar"
             aria-valuenow={progress}

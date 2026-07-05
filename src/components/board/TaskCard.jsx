@@ -6,7 +6,7 @@
 
 import { Draggable } from '@hello-pangea/dnd';
 import { useProjectContext } from '../../context/ProjectContext';
-import { formatDate, isOverdue } from '../../utils/helpers';
+import { formatDate, isOverdue, isDueToday } from '../../utils/helpers';
 import './TaskCard.css';
 
 const PRIORITY_LABELS = {
@@ -61,12 +61,24 @@ export default function TaskCard({ task, index, projectId, onEdit }) {
             <p className="task-card__description">{task.description}</p>
           )}
 
-          {task.dueDate && (
-            <div className={`task-card__due ${overdue ? 'task-card__due--overdue' : ''}`}>
-              <span>{overdue ? '⚠ Overdue · ' : '📅 '}</span>
-              <span>{formatDate(task.dueDate)}</span>
-            </div>
-          )}
+          {task.dueDate && (() => {
+            const done = task.status === 'done';
+            const overdue = !done && isOverdue(task.dueDate);
+            const today = !done && !overdue && isDueToday(task.dueDate);
+            const modifier = done ? 'done' : overdue ? 'overdue' : today ? 'today' : '';
+            const icon = overdue ? '⚠' : today ? '⏰' : '📅';
+            const label = overdue
+              ? `Overdue · ${formatDate(task.dueDate)}`
+              : today ? 'Due today'
+              : formatDate(task.dueDate);
+
+            return (
+              <div className={`task-card__due${modifier ? ` task-card__due--${modifier}` : ''}`}>
+                <span>{icon}</span>
+                <span>{label}</span>
+              </div>
+            );
+          })()}
         </div>
       )}
     </Draggable>

@@ -44,8 +44,14 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   border-radius: var(--radius-sm);
-  transition: background-color var(--transition-fast),
+  opacity: 0;
+  transition: opacity var(--transition-fast),
+              background-color var(--transition-fast),
               color var(--transition-fast);
+}
+
+.project-card:hover .project-card__delete {
+  opacity: 1;
 }
 
 .project-card__delete:hover {
@@ -103,4 +109,8 @@
   color: var(--color-text-muted);
   min-width: 2.5rem;
   text-align: right;
+}
+
+.project-card__progress-fill--complete {
+  background-color: var(--color-success);
 }

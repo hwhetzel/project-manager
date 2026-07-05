@@ -31,13 +31,16 @@
 }
 
 .task-card__priority {
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.68rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 2px var(--space-2);
+  letter-spacing: 0.06em;
+  padding: 3px var(--space-2);
   border-radius: var(--radius-full);
   color: #ffffff;
+  min-width: 52px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .task-card__priority--low {
@@ -100,17 +103,34 @@
 /* --- Due Date --- */
 
 .task-card__due {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-1);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   margin-top: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  width: fit-content;
+}
+
+.task-card__due--today {
+  color: var(--color-warning);
+  background-color: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-warning) 30%, transparent);
 }
 
 .task-card__due--overdue {
   color: var(--color-danger);
-  font-weight: 500;
+  background-color: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-danger) 30%, transparent);
+  font-weight: 600;
+}
+
+.task-card__due--done {
+  opacity: 0.5;
 }
 
 /* Dragging state — elevate the card visually while it's being moved */
